@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -10,6 +11,9 @@ using BrightIdeasSoftware;
 using PcapDotNet.Core;
 using PcapDotNet.Core.Extensions;
 using PcapDotNet.Packets;
+using PcapDotNet.Packets.Ethernet;
+using PcapDotNet.Packets.IpV4;
+using PcapDotNet.Packets.Transport;
 
 namespace Player
 {
@@ -30,7 +34,6 @@ namespace Player
                 new OLVColumn("TimeStamp", "TimeStamp"),
                 new OLVColumn("Length", "Length"),
                 new OLVColumn("Kind", "Kind"),
-
             });
             
             lstDevices.Columns.AddRange(new ColumnHeader[]
@@ -45,12 +48,69 @@ namespace Player
         {
             try
             {
-                ContextMenu = new ContextMenu(new[]
-                {
-                    new MenuItem("Send Packet", SendPackets),
-                });
+                var menu = new ContextMenuStrip();
+
+                menu.Items.Add("Send Packet", Properties.Resources.play, SendPackets);
+                menu.Items.Add("Save To Pcap", Properties.Resources.wireshark_logo, SavePackets);
+
+                lstDevices.UseCustomSelectionColors = true;
+                lstDevices.HighlightBackgroundColor = Color.CornflowerBlue;
+                lstDevices.UnfocusedHighlightBackgroundColor = Color.CornflowerBlue;
+
+                lstPackets.ContextMenuStrip = menu;
+
+                Text = $@"Player (Version {Properties.Settings.Default.Version})";
 
                 await LoadDevices();
+            }
+            catch (Exception ex)
+            {
+                Log(ex.Message);
+            }
+        }
+
+        private void SavePackets(object sender, EventArgs e)
+        {
+            try
+            {
+                string path;
+
+                if (_devices.Length == 0)
+                {
+                    throw new Exception("At least one device should be found");
+                }
+
+                using (var dlg = new SaveFileDialog
+                {
+                    Title = @"Save Packets",
+                    Filter = @"pcap files (*.pcap;*.pcapng)|*.pcap;*.pcapng",
+                    RestoreDirectory = true})
+                {
+                    if (dlg.ShowDialog() != DialogResult.OK)
+                    {
+                        return;
+                    }
+
+                    path = dlg.FileName;
+                }
+
+                var packets = lstPackets.SelectedObjects.Cast<PacketInfo>().ToArray();
+
+                using (var communicator =
+                    _devices[0].Device.Open(65536,
+                        PacketDeviceOpenAttributes.Promiscuous,
+                        1000))
+                {
+                    using (var dumpFile = communicator.OpenDump(path))
+                    {
+                        foreach (var packet in packets)
+                        {
+                            dumpFile.Dump(packet.Packet);
+                        }
+                    }
+                }
+
+                Log($"Saved {packets.Length} packets to {path}");
             }
             catch (Exception ex)
             {
@@ -87,10 +147,19 @@ namespace Player
 
                 foreach (DeviceInfo device in devices)
                 {
-                    Log($"Sending {packets.Length} packets on {device.Address}");
+                    var msg = $"Sending {packets.Length} packets on {device.Address}";
+                    
+                    if (chkIpOption.Checked)
+                    {
+                        msg = $"{msg} (with IP Options)";
+                    }
+
+                    Log(msg);
 
                     var currDevice = device;
-                    ThreadPool.QueueUserWorkItem(_ => SendPackets(packets, currDevice));
+                    int.TryParse(txtDelay.Text, out var delayMs);
+
+                    ThreadPool.QueueUserWorkItem(_ => SendPackets(packets, currDevice, delayMs));
                 }
             }
             catch (Exception ex)
@@ -175,7 +244,7 @@ namespace Player
 
             var dumpFile = new OfflinePacketDevice(file);
 
-            Packet[] packets;
+            var packets = new List<Packet>();
 
             await Task.Run(() =>
             {
@@ -184,7 +253,23 @@ namespace Player
                         PacketDeviceOpenAttributes.None,
                         1000))
                 {
-                    packets = communicator.ReceivePackets().ToArray();
+                    while (true)
+                    {
+                        try
+                        {
+                            communicator.ReceivePacket(out var packet);
+                            if (packet == null)
+                            {
+                                break;
+                            }
+
+                            packets.Add(packet);
+                        }
+                        catch (Exception e)
+                        {
+                            Log(e.Message);
+                        }
+                    }
                 }
 
                 _packets = packets.Select((p, i) => new PacketInfo
@@ -222,11 +307,10 @@ namespace Player
             {
                 using (var dlg = new OpenFileDialog
                 {
-                    Title = @"Browse Text Files",
-
+                    Title = @"Open Pcap",
                     CheckFileExists = true,
                     CheckPathExists = true,
-                    Filter = @"pcap files (*.pcap)|*.pcap",
+                    Filter = @"pcap files (*.pcap;*.pcapng)|*.pcap;*.pcapng",
                     FilterIndex = 2,
                     RestoreDirectory = true,
                     ReadOnlyChecked = true,
@@ -270,6 +354,7 @@ namespace Player
             {
                 Log(ex.Message);
                 grpPackets.Enabled = false;
+                txtPath.Text = null;
             }
             finally
             {
@@ -302,18 +387,43 @@ namespace Player
             }
         }
 
-        private void SendPackets(PacketInfo[] packets, DeviceInfo device)
+        private void SendPackets(PacketInfo[] packets, DeviceInfo device, int delayMs)
         {
             try
             {
-                using (PacketCommunicator communicator =
+                using (var communicator =
                     device.Device.Open(65536, 
                         PacketDeviceOpenAttributes.None,
                         1000))
                 {
-                    foreach (var packet in packets)
+                    foreach (var p in packets)
                     {
-                        communicator.SendPacket(packet.Packet);
+                        var packet = p.Packet;
+                        if (chkIpOption.Checked)
+                        {
+                            var ipv4 = packet.Ethernet.IpV4;
+
+                            if (ipv4.Protocol == IpV4Protocol.Tcp || ipv4.Protocol == IpV4Protocol.Udp)
+                            {
+                                var ethernet = (EthernetLayer) packet.Ethernet.ExtractLayer();
+                                var ipV4Layer = (IpV4Layer) packet.Ethernet.IpV4.ExtractLayer();
+                                ipV4Layer.HeaderChecksum = null;
+
+                                var packetTimestamp = packet.Timestamp;
+                                var payload = (PayloadLayer) packet.Ethernet.IpV4.Payload.ExtractLayer();
+
+                                ipV4Layer.Options = new IpV4Options(new IpV4OptionBasicSecurity());
+
+                                packet = new PacketBuilder(ethernet, ipV4Layer, payload).Build(packetTimestamp);
+                            }
+                        }
+
+                        communicator.SendPacket(packet);
+
+                        if (delayMs > 0)
+                        {
+                            Thread.Sleep(delayMs);
+                        }
                     }
 
                     Log($"Sent {packets.Length} packets on {device.Address}");
@@ -340,19 +450,7 @@ namespace Player
         {
             try
             {
-                var devices = lstDevices.SelectedObjects;
-                if (devices.Count == 0)
-                {
-                    throw new Exception("Select at least one device");
-                }
-
-                foreach (DeviceInfo device in devices)
-                {
-                    Log($"Sending {_packets.Length} packets on {device.Address}");
-
-                    var currDevice = device;
-                    ThreadPool.QueueUserWorkItem(_ => SendPackets(_packets, currDevice));
-                }
+                SendPackets(_packets);
             }
             catch (Exception ex)
             {
@@ -417,6 +515,33 @@ namespace Player
             }
 
             tsFilterGo_Click(sender, e);
+
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
+
+        private void lnkDelay_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(@"Add delay between packet sending (in milliseconds)", 
+                @"Delay", 
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
+        private void lnkIpOptions_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            MessageBox.Show(@"Add IP Options to sent packets (Security - 3)", 
+                @"IP Options", 
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
+        private void lnkSend_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Send all packets in pcap file.\nRight click packet(s) to send individually", 
+                @"Send Packets", 
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
         }
     }
 
