@@ -5,4 +5,4 @@ A desktop App which enables sending packets from a PCAP file
 * Send with interval between packets
 * Save selected packets to PCAP
 
-<img src="https://github.com/Blondy314/Player/blob/master/screenshot.png" width="256">
+![Screenshot](screenshot.png)
