@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -26,19 +28,31 @@ namespace Player
 
             Icon = Icon.FromHandle(new Bitmap(Properties.Resources.play).GetHicon());
 
+            InitLists();
+        }
+
+        private void InitLists()
+        {
             lstPackets.Columns.AddRange(new ColumnHeader[]
             {
                 new OLVColumn("#", "Num"),
                 new OLVColumn("TimeStamp", "TimeStamp"),
                 new OLVColumn("Length", "Length"),
+                new OLVColumn("Protocol", "Protocol"),
                 new OLVColumn("Kind", "Kind"),
             });
-            
+
             lstDevices.Columns.AddRange(new ColumnHeader[]
             {
                 new OLVColumn("Description", "Description"),
                 new OLVColumn("Address", "Address"),
                 new OLVColumn("Name", "Name")
+            });
+
+            lstLog.Columns.AddRange(new ColumnHeader[]
+            {
+                new OLVColumn("Time", "Time"),
+                new OLVColumn("Message", "Message"),
             });
         }
 
@@ -49,7 +63,7 @@ namespace Player
                 var menu = new ContextMenuStrip();
 
                 menu.Items.Add("Send Packet", Properties.Resources.play, SendPackets);
-                menu.Items.Add("Save To Pcap", Properties.Resources.wireshark_logo, SavePackets);
+                menu.Items.Add("Save To Pcap", Properties.Resources.wireshark, SavePackets);
 
                 lstDevices.UseCustomSelectionColors = true;
                 lstDevices.HighlightBackgroundColor = Color.CornflowerBlue;
@@ -63,7 +77,7 @@ namespace Player
             }
             catch (Exception ex)
             {
-                Log(ex.Message);
+                Log(ex);
             }
         }
 
@@ -75,7 +89,7 @@ namespace Player
 
                 if (_devices.Length == 0)
                 {
-                    throw new Exception("At least one device should be found");
+                    throw new Exception("At least one interface should be found");
                 }
 
                 using (var dlg = new SaveFileDialog
@@ -112,7 +126,7 @@ namespace Player
             }
             catch (Exception ex)
             {
-                Log(ex.Message);
+                Log(ex);
             }
         }
 
@@ -124,7 +138,7 @@ namespace Player
             }
             catch (Exception ex)
             {
-                Log(ex.Message);
+                Log(ex);
             }
         }
 
@@ -135,7 +149,7 @@ namespace Player
                 var devices = lstDevices.SelectedObjects;
                 if (devices.Count == 0)
                 {
-                    throw new Exception("Select at least one device");
+                    throw new Exception("Select at least one interface");
                 }
 
                 if (packets.Length == 0)
@@ -145,7 +159,7 @@ namespace Player
 
                 foreach (DeviceInfo device in devices)
                 {
-                    var msg = $"Sending {packets.Length} packets on {device.Address}";
+                    var msg = $"Sending {packets.Length} packets on {device.Description} ({device.Address})";
                     
                     if (chkIpOption.Checked)
                     {
@@ -162,7 +176,7 @@ namespace Player
             }
             catch (Exception ex)
             {
-                Log(ex.Message);
+                Log(ex.Message, true);
             }
         }
 
@@ -195,7 +209,7 @@ namespace Player
                     Device = d
                 }).OrderByDescending(a => a.Address).ToArray();
 
-                Log($"Found {_devices.Length} devices");
+                Log($"Found {_devices.Length} interfaces");
 
                 lstDevices.SetObjects(_devices);
 
@@ -204,7 +218,7 @@ namespace Player
             }
             catch (Exception ex)
             {
-                Log(ex.Message);
+                Log(ex);
             }
             finally
             {
@@ -265,7 +279,7 @@ namespace Player
                         }
                         catch (Exception e)
                         {
-                            Log(e.Message);
+                            Log(e);
                         }
                     }
                 }
@@ -276,6 +290,7 @@ namespace Player
                     TimeStamp = p.Timestamp,
                     Length = p.Length,
                     Kind = p.DataLink.Kind,
+                    Protocol = GetPacketProto(p).ToString(),
                     Packet = p
                 }).ToArray();
             });
@@ -321,11 +336,13 @@ namespace Player
                     }
 
                     txtPath.Text = dlg.FileName;
+
+                    OnLoadFile();
                 }
             }
             catch (Exception ex)
             {
-                Log(ex.Message);
+                Log(ex);
             }
         }
 
@@ -335,7 +352,7 @@ namespace Player
             Log($"Showing {num} packets");
         }
 
-        private async void txtPath_TextChanged(object sender, EventArgs e)
+        private async void OnLoadFile()
         {
             try
             {
@@ -350,7 +367,7 @@ namespace Player
             }
             catch (Exception ex)
             {
-                Log(ex.Message);
+                Log(ex);
                 grpPackets.Enabled = false;
                 txtPath.Text = null;
             }
@@ -368,7 +385,7 @@ namespace Player
             }
             catch (Exception ex)
             {
-                Log(ex.Message);
+                Log(ex);
             }
         }
 
@@ -382,6 +399,21 @@ namespace Player
             if (e.KeyCode == Keys.C && e.Alt)
             {
                 btnChoose_Click(sender, e);
+            }
+        }
+
+        private IpV4Protocol GetPacketProto(Packet packet)
+        {
+            switch (packet.Ethernet.EtherType)
+            {
+                case EthernetType.IpV6:
+                    return packet.Ethernet.IpV6.NextHeader;
+
+                case EthernetType.IpV4:
+                    return packet.Ethernet.IpV4.Protocol;
+
+                default:
+                    return IpV4Protocol.EtherIp;
             }
         }
 
@@ -399,9 +431,9 @@ namespace Player
                         var packet = p.Packet;
                         if (chkIpOption.Checked)
                         {
-                            var ipv4 = packet.Ethernet.IpV4;
+                            var proto = GetPacketProto(packet);
 
-                            if (ipv4.Protocol == IpV4Protocol.Tcp || ipv4.Protocol == IpV4Protocol.Udp)
+                            if (proto == IpV4Protocol.Tcp || proto == IpV4Protocol.Udp)
                             {
                                 var ethernet = (EthernetLayer) packet.Ethernet.ExtractLayer();
                                 var ipV4Layer = (IpV4Layer) packet.Ethernet.IpV4.ExtractLayer();
@@ -424,24 +456,50 @@ namespace Player
                         }
                     }
 
-                    Log($"Sent {packets.Length} packets on {device.Address}");
+                    Log($"Sent {packets.Length} packets on {device.Description} ({device.Address})");
                 }
             }
             catch (Exception e)
             {
-                Log(e.Message);
+                Log(e);
             }
         }
-        private void Log(string message)
-        {
-            if (InvokeRequired)
-            {
-                BeginInvoke((Action)(() => Log(message)));
-                return;
-            }
 
-            var time = DateTime.Now.ToString("HH:mm:ss");
-            txtLog.AppendText($"{time}: {message}\r\n");
+        private void Log(Exception ex)
+        {
+            Log(ex.Message, true);
+        }
+
+        private void Log(string message, bool error = false)
+        {
+            try
+            {
+                if (InvokeRequired)
+                {
+                    BeginInvoke((Action)(() => Log(message, error)));
+                    return;
+                }
+
+                var msg = new LogMessage
+                {
+                    Time = DateTime.Now.ToString("HH:mm:ss"),
+                    Message = message
+                };
+
+                lstLog.AddObject(msg);
+
+                if (error)
+                {
+                    lstLog.Items[lstLog.Items.Count - 1].ForeColor = Color.Red;
+                }
+
+                lstLog.AutoResizeColumns();
+                lstLog.CalculateReasonableTileSize();
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         private void btnSendAll_Click(object sender, EventArgs e)
@@ -452,7 +510,7 @@ namespace Player
             }
             catch (Exception ex)
             {
-                Log(ex.Message);
+                Log(ex);
             }
         }
 
@@ -464,7 +522,7 @@ namespace Player
             }
             catch (Exception ex)
             {
-                Log(ex.Message);
+                Log(ex);
             }
         }
 
@@ -495,7 +553,7 @@ namespace Player
             }
             catch (Exception ex)
             {
-                Log(ex.Message);
+                Log(ex);
                 tsBpf.BackColor = Color.Salmon;
             }
         }
@@ -541,6 +599,31 @@ namespace Player
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
         }
+
+        private async Task SendMail()
+        {
+            try
+            {
+                await Task.Run(() =>
+                {
+                    Log("Sending mail..");
+
+                    const string Subject = "Feedback from Player";
+                    const string Mail = "inbar.rotem@gmail.com";
+                    var mail = $"mailto:{Mail}?subject={Subject}";
+                    Process.Start(mail);
+                });
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+            }
+        }
+
+        private async void tsFeedback_Click(object sender, EventArgs e)
+        {
+            await SendMail();
+        }
     }
 
     public class PacketInfo
@@ -549,6 +632,7 @@ namespace Player
         public DateTime TimeStamp;
         public int Length;
         public DataLinkKind Kind;
+        public string Protocol;
         public Packet Packet;
     }
 
@@ -558,5 +642,11 @@ namespace Player
         public string Address;
         public string Name;
         public LivePacketDevice Device;
+    }
+
+    public class LogMessage
+    {
+        public string Time;
+        public string Message;
     }
 }

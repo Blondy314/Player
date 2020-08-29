@@ -73,6 +73,16 @@ namespace Player.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap mail {
+            get {
+                object obj = ResourceManager.GetObject("mail", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap play {
             get {
                 object obj = ResourceManager.GetObject("play", resourceCulture);
@@ -83,9 +93,9 @@ namespace Player.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap wireshark_logo {
+        internal static System.Drawing.Bitmap wireshark {
             get {
-                object obj = ResourceManager.GetObject("wireshark_logo", resourceCulture);
+                object obj = ResourceManager.GetObject("wireshark", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

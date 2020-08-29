@@ -103,15 +103,11 @@
     <None Include="play.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="wireshark.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="wireshark_logo.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="go.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="wireshark.png" />
+    <None Include="mail.png" />
     <Content Include="player.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
