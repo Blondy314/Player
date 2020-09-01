@@ -39,9 +39,7 @@ namespace Player
             this.tsPackets = new System.Windows.Forms.ToolStrip();
             this.tsNum = new System.Windows.Forms.ToolStripLabel();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsSendAll = new System.Windows.Forms.ToolStripButton();
             this.lnkSend = new System.Windows.Forms.ToolStripLabel();
-            this.tsFilterGo = new System.Windows.Forms.ToolStripButton();
             this.tsBpf = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -52,18 +50,23 @@ namespace Player
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.tsRefresh = new System.Windows.Forms.ToolStripButton();
             this.tsNumInterfaces = new System.Windows.Forms.ToolStripLabel();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.txtPath = new System.Windows.Forms.ToolStripTextBox();
-            this.tsChoose = new System.Windows.Forms.ToolStripButton();
-            this.tsWireshark = new System.Windows.Forms.ToolStripButton();
-            this.tsFeedback = new System.Windows.Forms.ToolStripButton();
             this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
             this.tsProg = new System.Windows.Forms.ToolStripProgressBar();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.lstLog = new BrightIdeasSoftware.ObjectListView();
+            this.tsChoose = new System.Windows.Forms.ToolStripButton();
+            this.tsWireshark = new System.Windows.Forms.ToolStripButton();
+            this.tsFeedback = new System.Windows.Forms.ToolStripButton();
+            this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
+            this.fromFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fromClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsSendAll = new System.Windows.Forms.ToolStripButton();
+            this.tsFilterGo = new System.Windows.Forms.ToolStripButton();
+            this.tsRefresh = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.lstPackets)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lstDevices)).BeginInit();
             this.grpPackets.SuspendLayout();
@@ -86,7 +89,7 @@ namespace Player
             this.lstPackets.Location = new System.Drawing.Point(0, 0);
             this.lstPackets.Name = "lstPackets";
             this.lstPackets.ShowGroups = false;
-            this.lstPackets.Size = new System.Drawing.Size(574, 249);
+            this.lstPackets.Size = new System.Drawing.Size(724, 249);
             this.lstPackets.TabIndex = 3;
             this.lstPackets.UseCompatibleStateImageBehavior = false;
             this.lstPackets.UseExplorerTheme = true;
@@ -101,7 +104,7 @@ namespace Player
             this.lstDevices.Location = new System.Drawing.Point(0, 0);
             this.lstDevices.Name = "lstDevices";
             this.lstDevices.ShowGroups = false;
-            this.lstDevices.Size = new System.Drawing.Size(1158, 241);
+            this.lstDevices.Size = new System.Drawing.Size(1308, 241);
             this.lstDevices.TabIndex = 5;
             this.lstDevices.UseCompatibleStateImageBehavior = false;
             this.lstDevices.View = System.Windows.Forms.View.Details;
@@ -118,7 +121,7 @@ namespace Player
             this.grpPackets.Enabled = false;
             this.grpPackets.Location = new System.Drawing.Point(12, 41);
             this.grpPackets.Name = "grpPackets";
-            this.grpPackets.Size = new System.Drawing.Size(587, 334);
+            this.grpPackets.Size = new System.Drawing.Size(737, 334);
             this.grpPackets.TabIndex = 7;
             this.grpPackets.TabStop = false;
             this.grpPackets.Text = "Packets";
@@ -163,7 +166,7 @@ namespace Player
             this.lnkDelay});
             this.tsPackets.Location = new System.Drawing.Point(3, 18);
             this.tsPackets.Name = "tsPackets";
-            this.tsPackets.Size = new System.Drawing.Size(581, 31);
+            this.tsPackets.Size = new System.Drawing.Size(731, 31);
             this.tsPackets.TabIndex = 6;
             this.tsPackets.Text = "toolStrip3";
             // 
@@ -178,15 +181,6 @@ namespace Player
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 31);
             // 
-            // tsSendAll
-            // 
-            this.tsSendAll.Image = global::Player.Properties.Resources.play;
-            this.tsSendAll.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsSendAll.Name = "tsSendAll";
-            this.tsSendAll.Size = new System.Drawing.Size(88, 28);
-            this.tsSendAll.Text = "Send All";
-            this.tsSendAll.Click += new System.EventHandler(this.btnSendAll_Click);
-            // 
             // lnkSend
             // 
             this.lnkSend.IsLink = true;
@@ -194,17 +188,6 @@ namespace Player
             this.lnkSend.Size = new System.Drawing.Size(16, 28);
             this.lnkSend.Text = "?";
             this.lnkSend.Click += new System.EventHandler(this.lnkSend_Click);
-            // 
-            // tsFilterGo
-            // 
-            this.tsFilterGo.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.tsFilterGo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsFilterGo.Image = global::Player.Properties.Resources.go;
-            this.tsFilterGo.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsFilterGo.Name = "tsFilterGo";
-            this.tsFilterGo.Size = new System.Drawing.Size(29, 28);
-            this.tsFilterGo.Text = "Go";
-            this.tsFilterGo.Click += new System.EventHandler(this.tsFilterGo_Click);
             // 
             // tsBpf
             // 
@@ -257,7 +240,7 @@ namespace Player
             this.panel1.Controls.Add(this.lstPackets);
             this.panel1.Location = new System.Drawing.Point(7, 54);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(574, 249);
+            this.panel1.Size = new System.Drawing.Size(724, 249);
             this.panel1.TabIndex = 5;
             // 
             // groupBox2
@@ -268,7 +251,7 @@ namespace Player
             this.groupBox2.Controls.Add(this.toolStrip1);
             this.groupBox2.Location = new System.Drawing.Point(12, 376);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(1170, 300);
+            this.groupBox2.Size = new System.Drawing.Size(1320, 300);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Interfaces";
@@ -281,7 +264,7 @@ namespace Player
             this.panel2.Controls.Add(this.lstDevices);
             this.panel2.Location = new System.Drawing.Point(6, 22);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1158, 241);
+            this.panel2.Size = new System.Drawing.Size(1308, 241);
             this.panel2.TabIndex = 7;
             // 
             // toolStrip1
@@ -291,26 +274,16 @@ namespace Player
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsRefresh,
             this.tsNumInterfaces});
-            this.toolStrip1.Location = new System.Drawing.Point(3, 270);
+            this.toolStrip1.Location = new System.Drawing.Point(3, 266);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1164, 27);
+            this.toolStrip1.Size = new System.Drawing.Size(1314, 31);
             this.toolStrip1.TabIndex = 6;
             this.toolStrip1.Text = "toolStrip1";
-            // 
-            // tsRefresh
-            // 
-            this.tsRefresh.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.tsRefresh.Image = ((System.Drawing.Image)(resources.GetObject("tsRefresh.Image")));
-            this.tsRefresh.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsRefresh.Name = "tsRefresh";
-            this.tsRefresh.Size = new System.Drawing.Size(82, 24);
-            this.tsRefresh.Text = "Refresh";
-            this.tsRefresh.Click += new System.EventHandler(this.BtnInterfaces_Click);
             // 
             // tsNumInterfaces
             // 
             this.tsNumInterfaces.Name = "tsNumInterfaces";
-            this.tsNumInterfaces.Size = new System.Drawing.Size(88, 24);
+            this.tsNumInterfaces.Size = new System.Drawing.Size(88, 28);
             this.tsNumInterfaces.Text = "0 Interfaces.";
             // 
             // toolStrip2
@@ -323,10 +296,11 @@ namespace Player
             this.tsWireshark,
             this.tsFeedback,
             this.toolStripLabel3,
-            this.tsProg});
+            this.tsProg,
+            this.toolStripDropDownButton1});
             this.toolStrip2.Location = new System.Drawing.Point(0, 0);
             this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(1194, 32);
+            this.toolStrip2.Size = new System.Drawing.Size(1344, 32);
             this.toolStrip2.TabIndex = 13;
             this.toolStrip2.Text = "toolStrip2";
             // 
@@ -343,6 +317,47 @@ namespace Player
             this.txtPath.Name = "txtPath";
             this.txtPath.ReadOnly = true;
             this.txtPath.Size = new System.Drawing.Size(400, 32);
+            // 
+            // toolStripLabel3
+            // 
+            this.toolStripLabel3.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.toolStripLabel3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.toolStripLabel3.Name = "toolStripLabel3";
+            this.toolStripLabel3.Size = new System.Drawing.Size(114, 29);
+            this.toolStripLabel3.Text = "© Inbar Rotem";
+            // 
+            // tsProg
+            // 
+            this.tsProg.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tsProg.Name = "tsProg";
+            this.tsProg.Size = new System.Drawing.Size(100, 29);
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this.lstLog);
+            this.groupBox3.Location = new System.Drawing.Point(755, 41);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(577, 334);
+            this.groupBox3.TabIndex = 14;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Log";
+            // 
+            // lstLog
+            // 
+            this.lstLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstLog.FullRowSelect = true;
+            this.lstLog.GridLines = true;
+            this.lstLog.HideSelection = false;
+            this.lstLog.Location = new System.Drawing.Point(3, 18);
+            this.lstLog.Name = "lstLog";
+            this.lstLog.ShowGroups = false;
+            this.lstLog.Size = new System.Drawing.Size(571, 313);
+            this.lstLog.TabIndex = 4;
+            this.lstLog.UseCompatibleStateImageBehavior = false;
+            this.lstLog.UseExplorerTheme = true;
+            this.lstLog.View = System.Windows.Forms.View.Details;
             // 
             // tsChoose
             // 
@@ -377,52 +392,68 @@ namespace Player
             this.tsFeedback.Text = "Feedback";
             this.tsFeedback.Click += new System.EventHandler(this.tsFeedback_Click);
             // 
-            // toolStripLabel3
+            // toolStripDropDownButton1
             // 
-            this.toolStripLabel3.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripLabel3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.toolStripLabel3.Name = "toolStripLabel3";
-            this.toolStripLabel3.Size = new System.Drawing.Size(114, 29);
-            this.toolStripLabel3.Text = "© Inbar Rotem";
+            this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fromFileToolStripMenuItem,
+            this.fromClipboardToolStripMenuItem});
+            this.toolStripDropDownButton1.Image = global::Player.Properties.Resources.add;
+            this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
+            this.toolStripDropDownButton1.Size = new System.Drawing.Size(122, 29);
+            this.toolStripDropDownButton1.Text = "Load Packet";
             // 
-            // tsProg
+            // fromFileToolStripMenuItem
             // 
-            this.tsProg.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.tsProg.Name = "tsProg";
-            this.tsProg.Size = new System.Drawing.Size(100, 29);
+            this.fromFileToolStripMenuItem.Image = global::Player.Properties.Resources.file;
+            this.fromFileToolStripMenuItem.Name = "fromFileToolStripMenuItem";
+            this.fromFileToolStripMenuItem.Size = new System.Drawing.Size(196, 26);
+            this.fromFileToolStripMenuItem.Text = "From File";
+            this.fromFileToolStripMenuItem.Click += new System.EventHandler(this.fromFileToolStripMenuItem_Click);
             // 
-            // groupBox3
+            // fromClipboardToolStripMenuItem
             // 
-            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox3.Controls.Add(this.lstLog);
-            this.groupBox3.Location = new System.Drawing.Point(605, 41);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(577, 334);
-            this.groupBox3.TabIndex = 14;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Log";
+            this.fromClipboardToolStripMenuItem.Image = global::Player.Properties.Resources.clipboard;
+            this.fromClipboardToolStripMenuItem.Name = "fromClipboardToolStripMenuItem";
+            this.fromClipboardToolStripMenuItem.Size = new System.Drawing.Size(196, 26);
+            this.fromClipboardToolStripMenuItem.Text = "From Clipboard";
+            this.fromClipboardToolStripMenuItem.Click += new System.EventHandler(this.fromClipboardToolStripMenuItem_Click);
             // 
-            // lstLog
+            // tsSendAll
             // 
-            this.lstLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstLog.FullRowSelect = true;
-            this.lstLog.GridLines = true;
-            this.lstLog.HideSelection = false;
-            this.lstLog.Location = new System.Drawing.Point(3, 18);
-            this.lstLog.Name = "lstLog";
-            this.lstLog.ShowGroups = false;
-            this.lstLog.Size = new System.Drawing.Size(571, 313);
-            this.lstLog.TabIndex = 4;
-            this.lstLog.UseCompatibleStateImageBehavior = false;
-            this.lstLog.UseExplorerTheme = true;
-            this.lstLog.View = System.Windows.Forms.View.Details;
+            this.tsSendAll.Image = global::Player.Properties.Resources.play;
+            this.tsSendAll.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsSendAll.Name = "tsSendAll";
+            this.tsSendAll.Size = new System.Drawing.Size(88, 28);
+            this.tsSendAll.Text = "Send All";
+            this.tsSendAll.Click += new System.EventHandler(this.btnSendAll_Click);
+            // 
+            // tsFilterGo
+            // 
+            this.tsFilterGo.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tsFilterGo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsFilterGo.Image = global::Player.Properties.Resources.go;
+            this.tsFilterGo.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsFilterGo.Name = "tsFilterGo";
+            this.tsFilterGo.Size = new System.Drawing.Size(29, 28);
+            this.tsFilterGo.Text = "Go";
+            this.tsFilterGo.Click += new System.EventHandler(this.tsFilterGo_Click);
+            // 
+            // tsRefresh
+            // 
+            this.tsRefresh.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tsRefresh.Image = ((System.Drawing.Image)(resources.GetObject("tsRefresh.Image")));
+            this.tsRefresh.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsRefresh.Name = "tsRefresh";
+            this.tsRefresh.Size = new System.Drawing.Size(82, 28);
+            this.tsRefresh.Text = "Refresh";
+            this.tsRefresh.Click += new System.EventHandler(this.BtnInterfaces_Click);
             // 
             // PlayerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1194, 695);
+            this.ClientSize = new System.Drawing.Size(1344, 695);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.toolStrip2);
             this.Controls.Add(this.grpPackets);
@@ -488,6 +519,9 @@ namespace Player
         private System.Windows.Forms.ToolStripLabel lnkSend;
         private System.Windows.Forms.ToolStripButton tsFeedback;
         private ObjectListView lstLog;
+        private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
+        private System.Windows.Forms.ToolStripMenuItem fromFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fromClipboardToolStripMenuItem;
     }
 }
 

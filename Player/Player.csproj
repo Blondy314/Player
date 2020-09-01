@@ -109,6 +109,9 @@
   <ItemGroup>
     <None Include="wireshark.png" />
     <None Include="mail.png" />
+    <None Include="add.png" />
+    <None Include="clipboard.png" />
+    <None Include="file.png" />
     <Content Include="player.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

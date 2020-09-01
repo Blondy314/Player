@@ -4,8 +4,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,6 +15,11 @@ using PcapDotNet.Packets.IpV4;
 
 namespace Player
 {
+    // TODO - 
+    // Edit src\dst Mac\IP (set as device)
+    // Send in random order
+    // Send in loop
+
     public partial class PlayerForm : Form
     {
         private PacketInfo[] _packets;
@@ -149,7 +152,7 @@ namespace Player
                 var devices = lstDevices.SelectedObjects;
                 if (devices.Count == 0)
                 {
-                    throw new Exception("Select at least one interface");
+                    throw new Exception("Select at least one interface from list below");
                 }
 
                 if (packets.Length == 0)
@@ -212,9 +215,7 @@ namespace Player
                 Log($"Found {_devices.Length} interfaces");
 
                 lstDevices.SetObjects(_devices);
-
                 lstDevices.AutoResizeColumns();
-                lstDevices.CalculateReasonableTileSize();
             }
             catch (Exception ex)
             {
@@ -244,68 +245,112 @@ namespace Player
             }
         }
 
-        private async Task LoadFile()
+        private async Task LoadFile(bool fromClipboard)
         {
-            var file = txtPath.Text;
-            if (!File.Exists(file))
-            {
-                throw new Exception("File not found - " + file);
-            }
-
-            Log("Loading packets from file " + file);
-
-            var dumpFile = new OfflinePacketDevice(file);
-
             var packets = new List<Packet>();
 
-            await Task.Run(() =>
+            if (!fromClipboard)
             {
-                using (var communicator =
-                    dumpFile.Open(65536,
-                        PacketDeviceOpenAttributes.None,
-                        1000))
+                var file = txtPath.Text;
+                if (!File.Exists(file))
                 {
-                    while (true)
-                    {
-                        try
-                        {
-                            communicator.ReceivePacket(out var packet);
-                            if (packet == null)
-                            {
-                                break;
-                            }
-
-                            packets.Add(packet);
-                        }
-                        catch (Exception e)
-                        {
-                            Log(e);
-                        }
-                    }
+                    throw new Exception("File not found - " + file);
                 }
 
-                _packets = packets.Select((p, i) => new PacketInfo
+                Log("Loading packets from file " + file);
+
+                var ext = Path.GetExtension(file);
+                if (ext == ".pcap" || ext == ".pcapng")
                 {
-                    Num = i + 1,
-                    TimeStamp = p.Timestamp,
-                    Length = p.Length,
-                    Kind = p.DataLink.Kind,
-                    Protocol = GetPacketProto(p).ToString(),
-                    Packet = p
-                }).ToArray();
-            });
+                    var dumpFile = new OfflinePacketDevice(file);
+
+                    await Task.Run(() =>
+                    {
+                        using (var communicator =
+                            dumpFile.Open(65536,
+                                PacketDeviceOpenAttributes.None,
+                                1000))
+                        {
+                            while (true)
+                            {
+                                try
+                                {
+                                    communicator.ReceivePacket(out var packet);
+                                    if (packet == null)
+                                    {
+                                        break;
+                                    }
+
+                                    packets.Add(packet);
+                                }
+                                catch (Exception e)
+                                {
+                                    Log(e);
+                                }
+                            }
+                        }
+                    });
+                }
+                else
+                {
+                    packets = new List<Packet>
+                    {
+                        new Packet(File.ReadAllBytes(file), DateTime.Now, DataLinkKind.Ethernet)
+                    };
+                }
+            }
+            else
+            {
+                string txt = null;
+
+                try
+                {
+                    txt = Clipboard.GetText();
+                }
+                catch
+                {
+                    // ignored
+                }
+
+                if (string.IsNullOrEmpty(txt))
+                {
+                    throw new Exception("Clipboard is empty");
+                }
+
+                foreach (var line in txt.Split(new [] {'\n'}, StringSplitOptions.RemoveEmptyEntries).Select(l => l.Trim()))
+                {
+                    var bytes = Enumerable.Range(0, line.Length)
+                        .Where(x => x % 2 == 0)
+                        .Select(x => Convert.ToByte(txt.Substring(x, 2), 16))
+                        .ToArray();
+
+                    Log($"Loading packet from clipboard ({bytes.Length}) bytes)");
+
+                    packets.Add(new Packet(bytes, DateTime.Now, DataLinkKind.Ethernet));
+                }
+            }
+
+            _packets = packets.Select((p, i) => new PacketInfo
+            {
+                Num = i + 1,
+                TimeStamp = p.Timestamp,
+                Length = p.Length,
+                Kind = p.DataLink.Kind,
+                Protocol = GetPacketProto(p).ToString(),
+                Packet = p
+            }).ToArray();
 
             lstPackets.SetObjects(_packets);
 
             lstPackets.AutoResizeColumns();
-            lstPackets.CalculateReasonableTileSize();
 
-            SetColumnWidth("Length", 80);
+            SetColumnWidth(lstPackets, "Length", 80);
+            SetColumnWidth(lstPackets, "Protocol", 80);
         }
 
-        private void SetColumnWidth(string title, int width)
+        private void SetColumnWidth(ListView lst, string title, int width)
         {
-            var col = lstPackets.Columns.Cast<OLVColumn>().FirstOrDefault(c => c.Text == title);
+            var col = lst.Columns.Cast<OLVColumn>().FirstOrDefault(c => c.Text == title);
             if (col == null)
             {
                 throw new Exception("Failed to get column - " + title);
@@ -316,14 +361,19 @@ namespace Player
 
         private void btnChoose_Click(object sender, EventArgs e)
         {
+            LoadFromFile(true);
+        }
+
+        private void LoadFromFile(bool pcap)
+        {
             try
             {
                 using (var dlg = new OpenFileDialog
                 {
-                    Title = @"Open Pcap",
+                    Title = @"Open File",
                     CheckFileExists = true,
                     CheckPathExists = true,
-                    Filter = @"pcap files (*.pcap;*.pcapng)|*.pcap;*.pcapng",
+                    Filter = pcap ? @"pcap files (*.pcap;*.pcapng)|*.pcap;*.pcapng" : "",
                     FilterIndex = 2,
                     RestoreDirectory = true,
                     ReadOnlyChecked = true,
@@ -337,7 +387,7 @@ namespace Player
 
                     txtPath.Text = dlg.FileName;
 
-                    OnLoadFile();
+                    OnLoadFile(false);
                 }
             }
             catch (Exception ex)
@@ -352,7 +402,7 @@ namespace Player
             Log($"Showing {num} packets");
         }
 
-        private async void OnLoadFile()
+        private async void OnLoadFile(bool fromClipboard)
         {
             try
             {
@@ -360,7 +410,8 @@ namespace Player
 
                 tsWireshark.Enabled = File.Exists(txtPath.Text);
 
-                await LoadFile();
+                await LoadFile(fromClipboard);
+
                 UpdateNumPackets(_packets.Length);
 
                 grpPackets.Enabled = true;
@@ -494,7 +545,8 @@ namespace Player
                 }
 
                 lstLog.AutoResizeColumns();
-                lstLog.CalculateReasonableTileSize();
+
+                SetColumnWidth(lstLog, "Message", 400);
             }
             catch
             {
@@ -623,6 +675,16 @@ namespace Player
         private async void tsFeedback_Click(object sender, EventArgs e)
         {
             await SendMail();
+        }
+
+        private void fromFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LoadFromFile(false);
+        }
+
+        private void fromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OnLoadFile(true);
         }
     }
 
