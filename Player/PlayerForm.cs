@@ -67,6 +67,7 @@ namespace Player
 
                 menu.Items.Add("Send Packet", Properties.Resources.play, SendPackets);
                 menu.Items.Add("Save To Pcap", Properties.Resources.wireshark, SavePackets);
+                menu.Items.Add("Copy Packet To Clipboard", Properties.Resources.clipboard, CopyPackets);
 
                 lstDevices.UseCustomSelectionColors = true;
                 lstDevices.HighlightBackgroundColor = Color.CornflowerBlue;
@@ -138,6 +139,24 @@ namespace Player
             try
             {
                 SendPackets(lstPackets.SelectedObjects.Cast<PacketInfo>().ToArray());
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+            }
+        }
+
+        private void CopyPackets(object sender, EventArgs e)
+        {
+            try
+            {
+                var packets = lstPackets.SelectedObjects.Cast<PacketInfo>()
+                    .Select(p => BitConverter.ToString(p.Packet.Buffer).Replace("-", string.Empty)).ToArray();
+
+                var length = string.Join(", ", packets.Select(p => $"{p.Length / 2} bytes"));
+                Log($"Copied {packets.Length} packets to clipboard. ({length})");
+
+                Clipboard.SetText(string.Join("\n", packets));
             }
             catch (Exception ex)
             {
@@ -685,6 +704,14 @@ namespace Player
         private void fromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OnLoadFile(true);
+        }
+
+        private void lnkLoad_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(@"Load packet bytes from file or from clipboard (as hex string)", 
+                @"Load Packet", 
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
         }
     }
 
