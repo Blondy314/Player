@@ -65,9 +65,17 @@ namespace Player
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.fromFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fromClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lnkLoad = new System.Windows.Forms.ToolStripLabel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.lstLog = new BrightIdeasSoftware.ObjectListView();
-            this.lnkLoad = new System.Windows.Forms.ToolStripLabel();
+            this.chkSrcMac = new System.Windows.Forms.CheckBox();
+            this.txtSrcMac = new System.Windows.Forms.TextBox();
+            this.chkSrcInterfaceMac = new System.Windows.Forms.CheckBox();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.panel4 = new System.Windows.Forms.Panel();
+            this.chkDstInterfaceMac = new System.Windows.Forms.CheckBox();
+            this.txtDstMac = new System.Windows.Forms.TextBox();
+            this.chkDstMac = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.lstPackets)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lstDevices)).BeginInit();
             this.grpPackets.SuspendLayout();
@@ -79,6 +87,8 @@ namespace Player
             this.toolStrip2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.lstLog)).BeginInit();
+            this.panel3.SuspendLayout();
+            this.panel4.SuspendLayout();
             this.SuspendLayout();
             // 
             // lstPackets
@@ -90,7 +100,7 @@ namespace Player
             this.lstPackets.Location = new System.Drawing.Point(0, 0);
             this.lstPackets.Name = "lstPackets";
             this.lstPackets.ShowGroups = false;
-            this.lstPackets.Size = new System.Drawing.Size(724, 249);
+            this.lstPackets.Size = new System.Drawing.Size(724, 234);
             this.lstPackets.TabIndex = 3;
             this.lstPackets.UseCompatibleStateImageBehavior = false;
             this.lstPackets.UseExplorerTheme = true;
@@ -122,7 +132,7 @@ namespace Player
             this.grpPackets.Enabled = false;
             this.grpPackets.Location = new System.Drawing.Point(12, 41);
             this.grpPackets.Name = "grpPackets";
-            this.grpPackets.Size = new System.Drawing.Size(737, 334);
+            this.grpPackets.Size = new System.Drawing.Size(737, 319);
             this.grpPackets.TabIndex = 7;
             this.grpPackets.TabStop = false;
             this.grpPackets.Text = "Packets";
@@ -131,7 +141,7 @@ namespace Player
             // 
             this.lnkIpOptions.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lnkIpOptions.AutoSize = true;
-            this.lnkIpOptions.Location = new System.Drawing.Point(134, 307);
+            this.lnkIpOptions.Location = new System.Drawing.Point(134, 292);
             this.lnkIpOptions.Name = "lnkIpOptions";
             this.lnkIpOptions.Size = new System.Drawing.Size(16, 17);
             this.lnkIpOptions.TabIndex = 8;
@@ -143,7 +153,7 @@ namespace Player
             // 
             this.chkIpOption.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkIpOption.AutoSize = true;
-            this.chkIpOption.Location = new System.Drawing.Point(7, 307);
+            this.chkIpOption.Location = new System.Drawing.Point(7, 292);
             this.chkIpOption.Name = "chkIpOption";
             this.chkIpOption.Size = new System.Drawing.Size(124, 21);
             this.chkIpOption.TabIndex = 7;
@@ -261,7 +271,7 @@ namespace Player
             this.panel1.Controls.Add(this.lstPackets);
             this.panel1.Location = new System.Drawing.Point(7, 54);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(724, 249);
+            this.panel1.Size = new System.Drawing.Size(724, 234);
             this.panel1.TabIndex = 5;
             // 
             // groupBox2
@@ -270,7 +280,7 @@ namespace Player
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.panel2);
             this.groupBox2.Controls.Add(this.toolStrip1);
-            this.groupBox2.Location = new System.Drawing.Point(12, 376);
+            this.groupBox2.Location = new System.Drawing.Point(9, 366);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(1320, 300);
             this.groupBox2.TabIndex = 8;
@@ -424,6 +434,14 @@ namespace Player
             this.fromClipboardToolStripMenuItem.Text = "From Clipboard";
             this.fromClipboardToolStripMenuItem.Click += new System.EventHandler(this.fromClipboardToolStripMenuItem_Click);
             // 
+            // lnkLoad
+            // 
+            this.lnkLoad.IsLink = true;
+            this.lnkLoad.Name = "lnkLoad";
+            this.lnkLoad.Size = new System.Drawing.Size(16, 29);
+            this.lnkLoad.Text = "?";
+            this.lnkLoad.Click += new System.EventHandler(this.lnkLoad_Click);
+            // 
             // groupBox3
             // 
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -431,7 +449,7 @@ namespace Player
             this.groupBox3.Controls.Add(this.lstLog);
             this.groupBox3.Location = new System.Drawing.Point(755, 41);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(577, 334);
+            this.groupBox3.Size = new System.Drawing.Size(577, 319);
             this.groupBox3.TabIndex = 14;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Log";
@@ -445,25 +463,103 @@ namespace Player
             this.lstLog.Location = new System.Drawing.Point(3, 18);
             this.lstLog.Name = "lstLog";
             this.lstLog.ShowGroups = false;
-            this.lstLog.Size = new System.Drawing.Size(571, 313);
+            this.lstLog.Size = new System.Drawing.Size(571, 298);
             this.lstLog.TabIndex = 4;
             this.lstLog.UseCompatibleStateImageBehavior = false;
             this.lstLog.UseExplorerTheme = true;
             this.lstLog.View = System.Windows.Forms.View.Details;
             // 
-            // lnkLoad
+            // chkSrcMac
             // 
-            this.lnkLoad.IsLink = true;
-            this.lnkLoad.Name = "lnkLoad";
-            this.lnkLoad.Size = new System.Drawing.Size(16, 29);
-            this.lnkLoad.Text = "?";
-            this.lnkLoad.Click += new System.EventHandler(this.lnkLoad_Click);
+            this.chkSrcMac.AutoSize = true;
+            this.chkSrcMac.Location = new System.Drawing.Point(11, 8);
+            this.chkSrcMac.Name = "chkSrcMac";
+            this.chkSrcMac.Size = new System.Drawing.Size(81, 21);
+            this.chkSrcMac.TabIndex = 15;
+            this.chkSrcMac.Text = "Src Mac";
+            this.chkSrcMac.UseVisualStyleBackColor = true;
+            this.chkSrcMac.CheckedChanged += new System.EventHandler(this.chkSrcMac_CheckedChanged);
+            // 
+            // txtSrcMac
+            // 
+            this.txtSrcMac.Enabled = false;
+            this.txtSrcMac.Location = new System.Drawing.Point(104, 8);
+            this.txtSrcMac.Name = "txtSrcMac";
+            this.txtSrcMac.Size = new System.Drawing.Size(148, 22);
+            this.txtSrcMac.TabIndex = 16;
+            // 
+            // chkSrcInterfaceMac
+            // 
+            this.chkSrcInterfaceMac.AutoSize = true;
+            this.chkSrcInterfaceMac.Enabled = false;
+            this.chkSrcInterfaceMac.Location = new System.Drawing.Point(258, 8);
+            this.chkSrcInterfaceMac.Name = "chkSrcInterfaceMac";
+            this.chkSrcInterfaceMac.Size = new System.Drawing.Size(105, 21);
+            this.chkSrcInterfaceMac.TabIndex = 17;
+            this.chkSrcInterfaceMac.Text = "As Interface";
+            this.chkSrcInterfaceMac.UseVisualStyleBackColor = true;
+            this.chkSrcInterfaceMac.CheckedChanged += new System.EventHandler(this.chkInterfaceMac_CheckedChanged);
+            // 
+            // panel3
+            // 
+            this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel3.Controls.Add(this.chkSrcInterfaceMac);
+            this.panel3.Controls.Add(this.txtSrcMac);
+            this.panel3.Controls.Add(this.chkSrcMac);
+            this.panel3.Location = new System.Drawing.Point(9, 673);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(380, 40);
+            this.panel3.TabIndex = 19;
+            // 
+            // panel4
+            // 
+            this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel4.Controls.Add(this.chkDstInterfaceMac);
+            this.panel4.Controls.Add(this.txtDstMac);
+            this.panel4.Controls.Add(this.chkDstMac);
+            this.panel4.Location = new System.Drawing.Point(395, 673);
+            this.panel4.Name = "panel4";
+            this.panel4.Size = new System.Drawing.Size(380, 40);
+            this.panel4.TabIndex = 20;
+            // 
+            // chkDstInterfaceMac
+            // 
+            this.chkDstInterfaceMac.AutoSize = true;
+            this.chkDstInterfaceMac.Enabled = false;
+            this.chkDstInterfaceMac.Location = new System.Drawing.Point(258, 8);
+            this.chkDstInterfaceMac.Name = "chkDstInterfaceMac";
+            this.chkDstInterfaceMac.Size = new System.Drawing.Size(105, 21);
+            this.chkDstInterfaceMac.TabIndex = 17;
+            this.chkDstInterfaceMac.Text = "As Interface";
+            this.chkDstInterfaceMac.UseVisualStyleBackColor = true;
+            this.chkDstInterfaceMac.CheckedChanged += new System.EventHandler(this.chkDstInterfaceMac_CheckedChanged);
+            // 
+            // txtDstMac
+            // 
+            this.txtDstMac.Enabled = false;
+            this.txtDstMac.Location = new System.Drawing.Point(104, 8);
+            this.txtDstMac.Name = "txtDstMac";
+            this.txtDstMac.Size = new System.Drawing.Size(148, 22);
+            this.txtDstMac.TabIndex = 16;
+            // 
+            // chkDstMac
+            // 
+            this.chkDstMac.AutoSize = true;
+            this.chkDstMac.Location = new System.Drawing.Point(11, 8);
+            this.chkDstMac.Name = "chkDstMac";
+            this.chkDstMac.Size = new System.Drawing.Size(81, 21);
+            this.chkDstMac.TabIndex = 15;
+            this.chkDstMac.Text = "Dst Mac";
+            this.chkDstMac.UseVisualStyleBackColor = true;
+            this.chkDstMac.CheckedChanged += new System.EventHandler(this.chkDstMac_CheckedChanged);
             // 
             // PlayerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1344, 695);
+            this.ClientSize = new System.Drawing.Size(1344, 768);
+            this.Controls.Add(this.panel4);
+            this.Controls.Add(this.panel3);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.toolStrip2);
             this.Controls.Add(this.grpPackets);
@@ -490,6 +586,10 @@ namespace Player
             this.toolStrip2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.lstLog)).EndInit();
+            this.panel3.ResumeLayout(false);
+            this.panel3.PerformLayout();
+            this.panel4.ResumeLayout(false);
+            this.panel4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -533,6 +633,14 @@ namespace Player
         private System.Windows.Forms.ToolStripMenuItem fromFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fromClipboardToolStripMenuItem;
         private System.Windows.Forms.ToolStripLabel lnkLoad;
+        private System.Windows.Forms.CheckBox chkSrcMac;
+        private System.Windows.Forms.TextBox txtSrcMac;
+        private System.Windows.Forms.CheckBox chkSrcInterfaceMac;
+        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.Panel panel4;
+        private System.Windows.Forms.CheckBox chkDstInterfaceMac;
+        private System.Windows.Forms.TextBox txtDstMac;
+        private System.Windows.Forms.CheckBox chkDstMac;
     }
 }
 

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using BrightIdeasSoftware;
 using PcapDotNet.Core;
+using PcapDotNet.Core.Extensions;
 using PcapDotNet.Packets;
 using PcapDotNet.Packets.Ethernet;
 using PcapDotNet.Packets.IpV4;
@@ -22,6 +23,7 @@ namespace Player
 
     public partial class PlayerForm : Form
     {
+        private Point _lastHit;
         private PacketInfo[] _packets;
         private DeviceInfo[] _devices;
 
@@ -30,8 +32,6 @@ namespace Player
             InitializeComponent();
 
             Icon = Icon.FromHandle(new Bitmap(Properties.Resources.play).GetHicon());
-
-            InitLists();
         }
 
         private void InitLists()
@@ -49,6 +49,7 @@ namespace Player
             {
                 new OLVColumn("Description", "Description"),
                 new OLVColumn("Address", "Address"),
+                new OLVColumn("MAC", "Mac"),
                 new OLVColumn("Name", "Name")
             });
 
@@ -57,23 +58,55 @@ namespace Player
                 new OLVColumn("Time", "Time"),
                 new OLVColumn("Message", "Message"),
             });
+
+            var menu = new ContextMenuStrip();
+
+            menu.Items.Add("Send Packet", Properties.Resources.play, SendPackets);
+            menu.Items.Add("Save To Pcap", Properties.Resources.wireshark, SavePackets);
+            menu.Items.Add("Copy Packet To Clipboard", Properties.Resources.clipboard, CopyPackets);
+            
+            lstPackets.ContextMenuStrip = menu;
+
+            lstDevices.UseCustomSelectionColors = true;
+            lstDevices.HighlightBackgroundColor = Color.CornflowerBlue;
+            lstDevices.UnfocusedHighlightBackgroundColor = Color.CornflowerBlue;
+
+            lstDevices.MouseUp += LstDevicesOnMouseUp;
+          
+            var deviceMenu = new ContextMenuStrip();
+            deviceMenu.Items.Add("Copy", Properties.Resources.clipboard, OnCopy);
+            lstDevices.ContextMenuStrip = deviceMenu;
+        }
+
+        private void LstDevicesOnMouseUp(object sender, MouseEventArgs e)
+        {
+            _lastHit = e.Location;
+        }
+
+        private void OnCopy(object sender, EventArgs e)
+        {
+            try
+            {
+                var hit = lstDevices.HitTest(_lastHit);
+
+                if (hit.Item == null)
+                {
+                    return;
+                }
+
+                Clipboard.SetText(hit.SubItem.Text);
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         private async void PlayerForm_Load(object sender, EventArgs e)
         {
             try
             {
-                var menu = new ContextMenuStrip();
-
-                menu.Items.Add("Send Packet", Properties.Resources.play, SendPackets);
-                menu.Items.Add("Save To Pcap", Properties.Resources.wireshark, SavePackets);
-                menu.Items.Add("Copy Packet To Clipboard", Properties.Resources.clipboard, CopyPackets);
-
-                lstDevices.UseCustomSelectionColors = true;
-                lstDevices.HighlightBackgroundColor = Color.CornflowerBlue;
-                lstDevices.UnfocusedHighlightBackgroundColor = Color.CornflowerBlue;
-
-                lstPackets.ContextMenuStrip = menu;
+                InitLists();
 
                 Text = $@"Player (Version {Properties.Settings.Default.Version})";
 
@@ -181,8 +214,29 @@ namespace Player
 
                 foreach (DeviceInfo device in devices)
                 {
+                    var currDevice = device;
+                    int.TryParse(txtDelay.Text, out var delayMs);
+
+                    var srcMac = txtSrcMac.Enabled ? txtSrcMac.Text : chkSrcMac.Checked ?  device.Mac : null;
+                    var dstMac = txtDstMac.Enabled ? txtDstMac.Text : chkDstMac.Checked ?  device.Mac : null;
+
                     var msg = $"Sending {packets.Length} packets on {device.Description} ({device.Address})";
                     
+                    if (srcMac != null)
+                    {
+                        msg = $"{msg} from src MAC {srcMac}";
+                    }
+
+                    if (dstMac != null)
+                    {
+                        msg = $"{msg} to dst MAC {dstMac}";
+                    }
+
+                    if (delayMs > 0)
+                    {
+                        msg = $"{msg} with delay of {delayMs} ms";
+                    }
+
                     if (chkIpOption.Checked)
                     {
                         msg = $"{msg} (with IP Options)";
@@ -190,10 +244,7 @@ namespace Player
 
                     Log(msg);
 
-                    var currDevice = device;
-                    int.TryParse(txtDelay.Text, out var delayMs);
-
-                    ThreadPool.QueueUserWorkItem(_ => SendPackets(packets, currDevice, delayMs));
+                    ThreadPool.QueueUserWorkItem(_ => SendPackets(packets, currDevice, delayMs, srcMac, dstMac));
                 }
             }
             catch (Exception ex)
@@ -207,6 +258,18 @@ namespace Player
             tsProg.Style = busy ? ProgressBarStyle.Marquee : ProgressBarStyle.Continuous;
         }
 
+        private string GetMac(LivePacketDevice device)
+        {
+            try
+            {
+                var mac = device.GetMacAddress();
+                return mac.ToString();
+            }
+            catch
+            {
+                return null;
+            }
+        }
         private async Task LoadDevices()
         {
             ToggleBusy(true);
@@ -215,21 +278,24 @@ namespace Player
             {
                 var allDevices = new LivePacketDevice[0];
 
+                Log("Fetching interface list..");
+
                 await Task.Run(() =>
                 {
                     allDevices = LivePacketDevice.AllLocalMachine.ToArray();
-                });
 
-                _devices = allDevices.Select(d => new DeviceInfo
-                {
-                    Name = GetName(d.Name),
-                    Description = d.Description,
-                    Address = string.Join(",", d.Addresses.
-                        Where(a => a.Address.Family == SocketAddressFamily.Internet).
-                        Select(a => a.Address.ToString().Split(' ')[1]).
-                        ToArray()),
-                    Device = d
-                }).OrderByDescending(a => a.Address).ToArray();
+                    _devices = allDevices.AsParallel().Select(d => new DeviceInfo
+                    {
+                        Name = GetName(d.Name),
+                        Description = d.Description,
+                        Address = string.Join(",", d.Addresses.
+                            Where(a => a.Address.Family == SocketAddressFamily.Internet).
+                            Select(a => a.Address.ToString().Split(' ')[1]).
+                            ToArray()),
+                        Mac = GetMac(d),
+                        Device = d
+                    }).OrderByDescending(a => a.Address).ToArray();
+                });
 
                 Log($"Found {_devices.Length} interfaces");
 
@@ -487,7 +553,7 @@ namespace Player
             }
         }
 
-        private void SendPackets(PacketInfo[] packets, DeviceInfo device, int delayMs)
+        private void SendPackets(PacketInfo[] packets, DeviceInfo device, int delayMs, string srcMac = null, string dstMac = null)
         {
             try
             {
@@ -499,23 +565,45 @@ namespace Player
                     foreach (var p in packets)
                     {
                         var packet = p.Packet;
-                        if (chkIpOption.Checked)
-                        {
-                            var proto = GetPacketProto(packet);
 
-                            if (proto == IpV4Protocol.Tcp || proto == IpV4Protocol.Udp)
+                        if (chkIpOption.Checked || srcMac != null || dstMac != null)
+                        {
+                            var ethernet = (EthernetLayer) packet.Ethernet.ExtractLayer();
+
+                            var layers = new List<ILayer>();
+
+                            if (srcMac != null)
                             {
-                                var ethernet = (EthernetLayer) packet.Ethernet.ExtractLayer();
+                                ethernet.Source = new MacAddress(srcMac);
+                            }
+
+                            if (dstMac != null)
+                            {
+                                ethernet.Destination = new MacAddress(dstMac);
+                            }
+
+                            layers.Add(ethernet);
+
+                            if (ethernet.EtherType == EthernetType.IpV4)
+                            {
                                 var ipV4Layer = (IpV4Layer) packet.Ethernet.IpV4.ExtractLayer();
                                 ipV4Layer.HeaderChecksum = null;
 
-                                var packetTimestamp = packet.Timestamp;
                                 var payload = (PayloadLayer) packet.Ethernet.IpV4.Payload.ExtractLayer();
-
                                 ipV4Layer.Options = new IpV4Options(new IpV4OptionBasicSecurity());
 
-                                packet = new PacketBuilder(ethernet, ipV4Layer, payload).Build(packetTimestamp);
+                                layers.Add(ipV4Layer);
+                                layers.Add(payload);
                             }
+                            else
+                            {
+                                var payload =  (PayloadLayer) packet.Ethernet.Payload.ExtractLayer();
+                                layers.Add(payload);
+                            }
+
+                            var packetTimestamp = packet.Timestamp;
+
+                            packet = new PacketBuilder(layers.ToArray()).Build(packetTimestamp);
                         }
 
                         communicator.SendPacket(packet);
@@ -713,6 +801,48 @@ namespace Player
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
         }
+
+        private void chkSrcMac_CheckedChanged(object sender, EventArgs e)
+        {
+            chkSrcInterfaceMac.Enabled = txtSrcMac.Enabled = chkSrcMac.Checked;
+        }
+
+        private void chkInterfaceMac_CheckedChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                txtSrcMac.Enabled = !chkSrcInterfaceMac.Checked;
+                if (chkSrcInterfaceMac.Checked)
+                {
+                    txtSrcMac.Text = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+            }
+        }
+
+        private void chkDstMac_CheckedChanged(object sender, EventArgs e)
+        {
+            chkDstInterfaceMac.Enabled = txtDstMac.Enabled = chkDstMac.Checked;
+        }
+
+        private void chkDstInterfaceMac_CheckedChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                txtDstMac.Enabled = !chkDstInterfaceMac.Checked;
+                if (chkDstInterfaceMac.Checked)
+                {
+                    txtDstMac.Text = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+            }
+        }
     }
 
     public class PacketInfo
@@ -729,6 +859,7 @@ namespace Player
     {
         public string Description;
         public string Address;
+        public string Mac;
         public string Name;
         public LivePacketDevice Device;
     }
