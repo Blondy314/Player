@@ -24,7 +24,7 @@ jobs:
       uses: NuGet/setup-nuget@v1.0.2
      
     - name: Restore NuGet Packages
-      run: nuget restore SimpleFrameworkApp.sln
+      run: nuget restore Player.sln
  
     - name: Build and Publish Web App
       run: msbuild Player.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile
