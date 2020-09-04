@@ -1,0 +1,4 @@
+language: csharp
+solution: Player.sln
+mono:
+  - latest
