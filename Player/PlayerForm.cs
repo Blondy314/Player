@@ -16,11 +16,6 @@ using PcapDotNet.Packets.IpV4;
 
 namespace Player
 {
-    // TODO - 
-    // Edit src\dst Mac\IP (set as device)
-    // Send in random order
-    // Send in loop
-
     public partial class PlayerForm : Form
     {
         private Point _lastHit;
@@ -216,9 +211,12 @@ namespace Player
                 {
                     var currDevice = device;
                     int.TryParse(txtDelay.Text, out var delayMs);
+                    int.TryParse(txtNumTimes.Text, out var numTimes);
 
                     var srcMac = txtSrcMac.Enabled ? txtSrcMac.Text : chkSrcMac.Checked ?  device.Mac : null;
                     var dstMac = txtDstMac.Enabled ? txtDstMac.Text : chkDstMac.Checked ?  device.Mac : null;
+                    var srcIp = txtSrcIp.Enabled ? txtSrcIp.Text : chkSrcIp.Checked ?  device.Address : null;
+                    var dstIp = txtDstIp.Enabled ? txtDstIp.Text : chkDstIp.Checked ?  device.Address : null;
 
                     var msg = $"Sending {packets.Length} packets on {device.Description} ({device.Address})";
                     
@@ -232,9 +230,28 @@ namespace Player
                         msg = $"{msg} to dst MAC {dstMac}";
                     }
 
+                    if (srcIp != null)
+                    {
+                        msg = $"{msg} from src IP {srcIp}";
+                    }
+
+                    if (dstIp != null)
+                    {
+                        msg = $"{msg} to dst IP {dstIp}";
+                    }
+
                     if (delayMs > 0)
                     {
                         msg = $"{msg} with delay of {delayMs} ms";
+                    }
+
+                    if (numTimes != 0)
+                    {
+                        msg = numTimes == -1 ?  $"{msg} infinite times" : $"{msg} {numTimes} times";
+                    }
+                    else
+                    {
+                        numTimes = 1;
                     }
 
                     if (chkIpOption.Checked)
@@ -244,7 +261,15 @@ namespace Player
 
                     Log(msg);
 
-                    ThreadPool.QueueUserWorkItem(_ => SendPackets(packets, currDevice, delayMs, srcMac, dstMac));
+                    ThreadPool.QueueUserWorkItem(_ => SendPacketsImp(packets, 
+                        currDevice, 
+                        delayMs, 
+                        numTimes, 
+                        chkRandom.Checked, 
+                        srcMac, 
+                        dstMac, 
+                        srcIp, 
+                        dstIp));
                 }
             }
             catch (Exception ex)
@@ -276,13 +301,11 @@ namespace Player
 
             try
             {
-                var allDevices = new LivePacketDevice[0];
-
                 Log("Fetching interface list..");
 
                 await Task.Run(() =>
                 {
-                    allDevices = LivePacketDevice.AllLocalMachine.ToArray();
+                    var allDevices = LivePacketDevice.AllLocalMachine.ToArray();
 
                     _devices = allDevices.AsParallel().Select(d => new DeviceInfo
                     {
@@ -553,7 +576,28 @@ namespace Player
             }
         }
 
-        private void SendPackets(PacketInfo[] packets, DeviceInfo device, int delayMs, string srcMac = null, string dstMac = null)
+        private static void Randomize<T>(IList<T> items)
+        {
+            var rand = new Random((int) DateTime.Now.Ticks);
+
+            for (var i = 0; i < items.Count - 1; i++)
+            {
+                var j = rand.Next(i, items.Count);
+                var temp = items[i];
+                items[i] = items[j];
+                items[j] = temp;
+            }
+        }
+
+        private void SendPacketsImp(IList<PacketInfo> packets,
+            DeviceInfo device,
+            int delayMs,
+            int numTimes,
+            bool random,
+            string srcMac = null,
+            string dstMac = null,
+            string srcIp = null,
+            string dstIp = null)
         {
             try
             {
@@ -562,59 +606,81 @@ namespace Player
                         PacketDeviceOpenAttributes.None,
                         1000))
                 {
-                    foreach (var p in packets)
+                    for (var i = 0; i < numTimes; ++i)
                     {
-                        var packet = p.Packet;
-
-                        if (chkIpOption.Checked || srcMac != null || dstMac != null)
+                        if (random)
                         {
-                            var ethernet = (EthernetLayer) packet.Ethernet.ExtractLayer();
-
-                            var layers = new List<ILayer>();
-
-                            if (srcMac != null)
-                            {
-                                ethernet.Source = new MacAddress(srcMac);
-                            }
-
-                            if (dstMac != null)
-                            {
-                                ethernet.Destination = new MacAddress(dstMac);
-                            }
-
-                            layers.Add(ethernet);
-
-                            if (ethernet.EtherType == EthernetType.IpV4)
-                            {
-                                var ipV4Layer = (IpV4Layer) packet.Ethernet.IpV4.ExtractLayer();
-                                ipV4Layer.HeaderChecksum = null;
-
-                                var payload = (PayloadLayer) packet.Ethernet.IpV4.Payload.ExtractLayer();
-                                ipV4Layer.Options = new IpV4Options(new IpV4OptionBasicSecurity());
-
-                                layers.Add(ipV4Layer);
-                                layers.Add(payload);
-                            }
-                            else
-                            {
-                                var payload =  (PayloadLayer) packet.Ethernet.Payload.ExtractLayer();
-                                layers.Add(payload);
-                            }
-
-                            var packetTimestamp = packet.Timestamp;
-
-                            packet = new PacketBuilder(layers.ToArray()).Build(packetTimestamp);
+                            Randomize<PacketInfo>(packets);
                         }
 
-                        communicator.SendPacket(packet);
-
-                        if (delayMs > 0)
+                        foreach (var p in packets)
                         {
-                            Thread.Sleep(delayMs);
+                            var packet = p.Packet;
+
+                            if (chkIpOption.Checked || srcMac != null || dstMac != null || srcIp != null ||  dstIp != null)
+                            {
+                                var ethernet = (EthernetLayer) packet.Ethernet.ExtractLayer();
+
+                                var layers = new List<ILayer>();
+
+                                if (srcMac != null)
+                                {
+                                    ethernet.Source = new MacAddress(srcMac);
+                                }
+
+                                if (dstMac != null)
+                                {
+                                    ethernet.Destination = new MacAddress(dstMac);
+                                }
+
+                                layers.Add(ethernet);
+
+                                if (ethernet.EtherType == EthernetType.IpV4)
+                                {
+                                    var ipV4Layer = (IpV4Layer) packet.Ethernet.IpV4.ExtractLayer();
+                                    if (srcIp != null)
+                                    {
+                                        ipV4Layer.Source = new IpV4Address(srcIp);
+                                    }
+
+                                    if (dstIp != null)
+                                    {
+                                        ipV4Layer.CurrentDestination = new IpV4Address(dstIp);
+                                    }
+
+                                    if (chkIpOption.Checked)
+                                    {
+                                        ipV4Layer.Options = new IpV4Options(new IpV4OptionBasicSecurity());
+                                    }
+
+                                    var payload = (PayloadLayer) packet.Ethernet.IpV4.Payload.ExtractLayer();
+
+                                    ipV4Layer.HeaderChecksum = null;
+
+                                    layers.Add(ipV4Layer);
+                                    layers.Add(payload);
+                                }
+                                else
+                                {
+                                    var payload = (PayloadLayer) packet.Ethernet.Payload.ExtractLayer();
+                                    layers.Add(payload);
+                                }
+
+                                var packetTimestamp = packet.Timestamp;
+
+                                packet = new PacketBuilder(layers.ToArray()).Build(packetTimestamp);
+                            }
+
+                            communicator.SendPacket(packet);
+
+                            if (delayMs > 0)
+                            {
+                                Thread.Sleep(delayMs);
+                            }
                         }
+
+                        Log($"Sent {packets.Count} packets on {device.Description} ({device.Address})");
                     }
-
-                    Log($"Sent {packets.Length} packets on {device.Description} ({device.Address})");
                 }
             }
             catch (Exception e)
@@ -737,26 +803,17 @@ namespace Player
 
         private void lnkDelay_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(@"Add delay between packet sending (in milliseconds)", 
-                @"Delay", 
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            ShowLink(@"Delay", @"Add delay between packet sending (in milliseconds)");
         }
 
         private void lnkIpOptions_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            MessageBox.Show(@"Add IP Options to sent packets (Security - 3)", 
-                @"IP Options", 
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            ShowLink(@"IP Options", @"Add IP Options to sent packets (Security - 3)");
         }
 
         private void lnkSend_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Send all packets in pcap file.\nRight click packet(s) to send individually", 
-                @"Send Packets", 
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            ShowLink(@"Send Packets", "Send all packets in pcap file.\nRight click packet(s) to send individually");
         }
 
         private async Task SendMail()
@@ -796,10 +853,7 @@ namespace Player
 
         private void lnkLoad_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(@"Load packet bytes from file or from clipboard (as hex string)", 
-                @"Load Packet", 
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            ShowLink(@"Load Packet", @"Load packet bytes from file or from clipboard (as hex string)");
         }
 
         private void chkSrcMac_CheckedChanged(object sender, EventArgs e)
@@ -842,6 +896,74 @@ namespace Player
             {
                 Log(ex);
             }
+        }
+
+        private void lnkNumTimes_Click(object sender, EventArgs e)
+        {
+            ShowLink(@"Num Times", @"Send the specified packets X times (-1 for infinite)");
+        }
+
+        private void txtNumTimes_Click(object sender, EventArgs e)
+        {
+            txtNumTimes.BackColor = string.IsNullOrEmpty(txtNumTimes.Text) ? Color.White : Color.GreenYellow;
+        }
+
+        private void chkSrcInterfaceIp_CheckedChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                txtSrcIp.Enabled = !chkSrcInterfaceIp.Checked;
+                if (chkSrcInterfaceIp.Checked)
+                {
+                    txtSrcIp.Text = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+            }
+        }
+
+        private void chkSrcIp_CheckedChanged(object sender, EventArgs e)
+        {
+            chkSrcInterfaceIp.Enabled = txtSrcIp.Enabled = chkSrcIp.Checked;
+        }
+
+        private void chkDstIp_CheckedChanged(object sender, EventArgs e)
+        {
+            chkDstInterfaceIp.Enabled = txtDstIp.Enabled = chkDstIp.Checked;
+        }
+
+        private void chkDstInterfaceIp_CheckedChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                txtDstIp.Enabled = !chkDstInterfaceIp.Checked;
+                if (chkDstInterfaceIp.Checked)
+                {
+                    txtDstIp.Text = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+            }
+        }
+
+        private void lnkChangeFields_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            ShowLink(@"Change Fields", 
+                     "Change specified fields in the packets before sending.\n" + 
+                    "As Interface - will set the field as the corresponding value from the sending interface");
+        }
+
+        private static void ShowLink(string title, string msg)
+        {
+            MessageBox.Show(
+                msg,
+                title,
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
         }
     }
 

@@ -34,6 +34,7 @@ namespace Player
             this.lstPackets = new BrightIdeasSoftware.ObjectListView();
             this.lstDevices = new BrightIdeasSoftware.ObjectListView();
             this.grpPackets = new System.Windows.Forms.GroupBox();
+            this.chkRandom = new System.Windows.Forms.CheckBox();
             this.lnkIpOptions = new System.Windows.Forms.LinkLabel();
             this.chkIpOption = new System.Windows.Forms.CheckBox();
             this.tsPackets = new System.Windows.Forms.ToolStrip();
@@ -48,6 +49,9 @@ namespace Player
             this.toolStripLabel4 = new System.Windows.Forms.ToolStripLabel();
             this.txtDelay = new System.Windows.Forms.ToolStripTextBox();
             this.lnkDelay = new System.Windows.Forms.ToolStripLabel();
+            this.toolStripLabel6 = new System.Windows.Forms.ToolStripLabel();
+            this.txtNumTimes = new System.Windows.Forms.ToolStripTextBox();
+            this.lnkNumTimes = new System.Windows.Forms.ToolStripLabel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -76,6 +80,17 @@ namespace Player
             this.chkDstInterfaceMac = new System.Windows.Forms.CheckBox();
             this.txtDstMac = new System.Windows.Forms.TextBox();
             this.chkDstMac = new System.Windows.Forms.CheckBox();
+            this.panel5 = new System.Windows.Forms.Panel();
+            this.chkDstInterfaceIp = new System.Windows.Forms.CheckBox();
+            this.txtDstIp = new System.Windows.Forms.TextBox();
+            this.chkDstIp = new System.Windows.Forms.CheckBox();
+            this.panel6 = new System.Windows.Forms.Panel();
+            this.chkSrcInterfaceIp = new System.Windows.Forms.CheckBox();
+            this.txtSrcIp = new System.Windows.Forms.TextBox();
+            this.chkSrcIp = new System.Windows.Forms.CheckBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.lnkChangeFields = new System.Windows.Forms.LinkLabel();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.lstPackets)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lstDevices)).BeginInit();
             this.grpPackets.SuspendLayout();
@@ -89,6 +104,10 @@ namespace Player
             ((System.ComponentModel.ISupportInitialize)(this.lstLog)).BeginInit();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
+            this.panel5.SuspendLayout();
+            this.panel6.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // lstPackets
@@ -100,7 +119,7 @@ namespace Player
             this.lstPackets.Location = new System.Drawing.Point(0, 0);
             this.lstPackets.Name = "lstPackets";
             this.lstPackets.ShowGroups = false;
-            this.lstPackets.Size = new System.Drawing.Size(724, 234);
+            this.lstPackets.Size = new System.Drawing.Size(724, 274);
             this.lstPackets.TabIndex = 3;
             this.lstPackets.UseCompatibleStateImageBehavior = false;
             this.lstPackets.UseExplorerTheme = true;
@@ -115,7 +134,7 @@ namespace Player
             this.lstDevices.Location = new System.Drawing.Point(0, 0);
             this.lstDevices.Name = "lstDevices";
             this.lstDevices.ShowGroups = false;
-            this.lstDevices.Size = new System.Drawing.Size(1308, 241);
+            this.lstDevices.Size = new System.Drawing.Size(1308, 201);
             this.lstDevices.TabIndex = 5;
             this.lstDevices.UseCompatibleStateImageBehavior = false;
             this.lstDevices.View = System.Windows.Forms.View.Details;
@@ -125,6 +144,7 @@ namespace Player
             this.grpPackets.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.grpPackets.Controls.Add(this.chkRandom);
             this.grpPackets.Controls.Add(this.lnkIpOptions);
             this.grpPackets.Controls.Add(this.chkIpOption);
             this.grpPackets.Controls.Add(this.tsPackets);
@@ -132,16 +152,27 @@ namespace Player
             this.grpPackets.Enabled = false;
             this.grpPackets.Location = new System.Drawing.Point(12, 41);
             this.grpPackets.Name = "grpPackets";
-            this.grpPackets.Size = new System.Drawing.Size(737, 319);
+            this.grpPackets.Size = new System.Drawing.Size(737, 359);
             this.grpPackets.TabIndex = 7;
             this.grpPackets.TabStop = false;
             this.grpPackets.Text = "Packets";
+            // 
+            // chkRandom
+            // 
+            this.chkRandom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chkRandom.AutoSize = true;
+            this.chkRandom.Location = new System.Drawing.Point(174, 332);
+            this.chkRandom.Name = "chkRandom";
+            this.chkRandom.Size = new System.Drawing.Size(176, 21);
+            this.chkRandom.TabIndex = 9;
+            this.chkRandom.Text = "Send In Random Order";
+            this.chkRandom.UseVisualStyleBackColor = true;
             // 
             // lnkIpOptions
             // 
             this.lnkIpOptions.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lnkIpOptions.AutoSize = true;
-            this.lnkIpOptions.Location = new System.Drawing.Point(134, 292);
+            this.lnkIpOptions.Location = new System.Drawing.Point(134, 332);
             this.lnkIpOptions.Name = "lnkIpOptions";
             this.lnkIpOptions.Size = new System.Drawing.Size(16, 17);
             this.lnkIpOptions.TabIndex = 8;
@@ -153,7 +184,7 @@ namespace Player
             // 
             this.chkIpOption.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkIpOption.AutoSize = true;
-            this.chkIpOption.Location = new System.Drawing.Point(7, 292);
+            this.chkIpOption.Location = new System.Drawing.Point(7, 332);
             this.chkIpOption.Name = "chkIpOption";
             this.chkIpOption.Size = new System.Drawing.Size(124, 21);
             this.chkIpOption.TabIndex = 7;
@@ -174,7 +205,10 @@ namespace Player
             this.toolStripSeparator2,
             this.toolStripLabel4,
             this.txtDelay,
-            this.lnkDelay});
+            this.lnkDelay,
+            this.toolStripLabel6,
+            this.txtNumTimes,
+            this.lnkNumTimes});
             this.tsPackets.Location = new System.Drawing.Point(3, 18);
             this.tsPackets.Name = "tsPackets";
             this.tsPackets.Size = new System.Drawing.Size(731, 27);
@@ -263,6 +297,28 @@ namespace Player
             this.lnkDelay.Text = "?";
             this.lnkDelay.Click += new System.EventHandler(this.lnkDelay_Click);
             // 
+            // toolStripLabel6
+            // 
+            this.toolStripLabel6.Name = "toolStripLabel6";
+            this.toolStripLabel6.Size = new System.Drawing.Size(87, 24);
+            this.toolStripLabel6.Text = "Num Times:";
+            // 
+            // txtNumTimes
+            // 
+            this.txtNumTimes.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtNumTimes.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.txtNumTimes.Name = "txtNumTimes";
+            this.txtNumTimes.Size = new System.Drawing.Size(50, 27);
+            this.txtNumTimes.TextChanged += new System.EventHandler(this.txtNumTimes_Click);
+            // 
+            // lnkNumTimes
+            // 
+            this.lnkNumTimes.IsLink = true;
+            this.lnkNumTimes.Name = "lnkNumTimes";
+            this.lnkNumTimes.Size = new System.Drawing.Size(16, 24);
+            this.lnkNumTimes.Text = "?";
+            this.lnkNumTimes.Click += new System.EventHandler(this.lnkNumTimes_Click);
+            // 
             // panel1
             // 
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -271,7 +327,7 @@ namespace Player
             this.panel1.Controls.Add(this.lstPackets);
             this.panel1.Location = new System.Drawing.Point(7, 54);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(724, 234);
+            this.panel1.Size = new System.Drawing.Size(724, 274);
             this.panel1.TabIndex = 5;
             // 
             // groupBox2
@@ -280,9 +336,9 @@ namespace Player
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.panel2);
             this.groupBox2.Controls.Add(this.toolStrip1);
-            this.groupBox2.Location = new System.Drawing.Point(9, 366);
+            this.groupBox2.Location = new System.Drawing.Point(9, 406);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(1320, 300);
+            this.groupBox2.Size = new System.Drawing.Size(1320, 260);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Interfaces";
@@ -295,7 +351,7 @@ namespace Player
             this.panel2.Controls.Add(this.lstDevices);
             this.panel2.Location = new System.Drawing.Point(6, 22);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1308, 241);
+            this.panel2.Size = new System.Drawing.Size(1308, 201);
             this.panel2.TabIndex = 7;
             // 
             // toolStrip1
@@ -305,7 +361,7 @@ namespace Player
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsRefresh,
             this.tsNumInterfaces});
-            this.toolStrip1.Location = new System.Drawing.Point(3, 270);
+            this.toolStrip1.Location = new System.Drawing.Point(3, 230);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(1314, 27);
             this.toolStrip1.TabIndex = 6;
@@ -449,7 +505,7 @@ namespace Player
             this.groupBox3.Controls.Add(this.lstLog);
             this.groupBox3.Location = new System.Drawing.Point(755, 41);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(577, 319);
+            this.groupBox3.Size = new System.Drawing.Size(577, 359);
             this.groupBox3.TabIndex = 14;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Log";
@@ -463,7 +519,7 @@ namespace Player
             this.lstLog.Location = new System.Drawing.Point(3, 18);
             this.lstLog.Name = "lstLog";
             this.lstLog.ShowGroups = false;
-            this.lstLog.Size = new System.Drawing.Size(571, 298);
+            this.lstLog.Size = new System.Drawing.Size(571, 338);
             this.lstLog.TabIndex = 4;
             this.lstLog.UseCompatibleStateImageBehavior = false;
             this.lstLog.UseExplorerTheme = true;
@@ -506,7 +562,7 @@ namespace Player
             this.panel3.Controls.Add(this.chkSrcInterfaceMac);
             this.panel3.Controls.Add(this.txtSrcMac);
             this.panel3.Controls.Add(this.chkSrcMac);
-            this.panel3.Location = new System.Drawing.Point(9, 673);
+            this.panel3.Location = new System.Drawing.Point(13, 25);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(380, 40);
             this.panel3.TabIndex = 19;
@@ -517,7 +573,7 @@ namespace Player
             this.panel4.Controls.Add(this.chkDstInterfaceMac);
             this.panel4.Controls.Add(this.txtDstMac);
             this.panel4.Controls.Add(this.chkDstMac);
-            this.panel4.Location = new System.Drawing.Point(395, 673);
+            this.panel4.Location = new System.Drawing.Point(399, 25);
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(380, 40);
             this.panel4.TabIndex = 20;
@@ -553,13 +609,134 @@ namespace Player
             this.chkDstMac.UseVisualStyleBackColor = true;
             this.chkDstMac.CheckedChanged += new System.EventHandler(this.chkDstMac_CheckedChanged);
             // 
+            // panel5
+            // 
+            this.panel5.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel5.Controls.Add(this.chkDstInterfaceIp);
+            this.panel5.Controls.Add(this.txtDstIp);
+            this.panel5.Controls.Add(this.chkDstIp);
+            this.panel5.Location = new System.Drawing.Point(399, 71);
+            this.panel5.Name = "panel5";
+            this.panel5.Size = new System.Drawing.Size(380, 40);
+            this.panel5.TabIndex = 22;
+            // 
+            // chkDstInterfaceIp
+            // 
+            this.chkDstInterfaceIp.AutoSize = true;
+            this.chkDstInterfaceIp.Enabled = false;
+            this.chkDstInterfaceIp.Location = new System.Drawing.Point(258, 8);
+            this.chkDstInterfaceIp.Name = "chkDstInterfaceIp";
+            this.chkDstInterfaceIp.Size = new System.Drawing.Size(105, 21);
+            this.chkDstInterfaceIp.TabIndex = 17;
+            this.chkDstInterfaceIp.Text = "As Interface";
+            this.chkDstInterfaceIp.UseVisualStyleBackColor = true;
+            this.chkDstInterfaceIp.CheckedChanged += new System.EventHandler(this.chkDstInterfaceIp_CheckedChanged);
+            // 
+            // txtDstIp
+            // 
+            this.txtDstIp.Enabled = false;
+            this.txtDstIp.Location = new System.Drawing.Point(104, 8);
+            this.txtDstIp.Name = "txtDstIp";
+            this.txtDstIp.Size = new System.Drawing.Size(148, 22);
+            this.txtDstIp.TabIndex = 16;
+            // 
+            // chkDstIp
+            // 
+            this.chkDstIp.AutoSize = true;
+            this.chkDstIp.Location = new System.Drawing.Point(11, 8);
+            this.chkDstIp.Name = "chkDstIp";
+            this.chkDstIp.Size = new System.Drawing.Size(67, 21);
+            this.chkDstIp.TabIndex = 15;
+            this.chkDstIp.Text = "Dst IP";
+            this.chkDstIp.UseVisualStyleBackColor = true;
+            this.chkDstIp.CheckedChanged += new System.EventHandler(this.chkDstIp_CheckedChanged);
+            // 
+            // panel6
+            // 
+            this.panel6.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel6.Controls.Add(this.chkSrcInterfaceIp);
+            this.panel6.Controls.Add(this.txtSrcIp);
+            this.panel6.Controls.Add(this.chkSrcIp);
+            this.panel6.Location = new System.Drawing.Point(13, 71);
+            this.panel6.Name = "panel6";
+            this.panel6.Size = new System.Drawing.Size(380, 40);
+            this.panel6.TabIndex = 21;
+            // 
+            // chkSrcInterfaceIp
+            // 
+            this.chkSrcInterfaceIp.AutoSize = true;
+            this.chkSrcInterfaceIp.Enabled = false;
+            this.chkSrcInterfaceIp.Location = new System.Drawing.Point(258, 8);
+            this.chkSrcInterfaceIp.Name = "chkSrcInterfaceIp";
+            this.chkSrcInterfaceIp.Size = new System.Drawing.Size(105, 21);
+            this.chkSrcInterfaceIp.TabIndex = 17;
+            this.chkSrcInterfaceIp.Text = "As Interface";
+            this.chkSrcInterfaceIp.UseVisualStyleBackColor = true;
+            this.chkSrcInterfaceIp.CheckedChanged += new System.EventHandler(this.chkSrcInterfaceIp_CheckedChanged);
+            // 
+            // txtSrcIp
+            // 
+            this.txtSrcIp.Enabled = false;
+            this.txtSrcIp.Location = new System.Drawing.Point(104, 8);
+            this.txtSrcIp.Name = "txtSrcIp";
+            this.txtSrcIp.Size = new System.Drawing.Size(148, 22);
+            this.txtSrcIp.TabIndex = 16;
+            // 
+            // chkSrcIp
+            // 
+            this.chkSrcIp.AutoSize = true;
+            this.chkSrcIp.Location = new System.Drawing.Point(11, 8);
+            this.chkSrcIp.Name = "chkSrcIp";
+            this.chkSrcIp.Size = new System.Drawing.Size(67, 21);
+            this.chkSrcIp.TabIndex = 15;
+            this.chkSrcIp.Text = "Src IP";
+            this.chkSrcIp.UseVisualStyleBackColor = true;
+            this.chkSrcIp.CheckedChanged += new System.EventHandler(this.chkSrcIp_CheckedChanged);
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBox1.Controls.Add(this.lnkChangeFields);
+            this.groupBox1.Controls.Add(this.panel3);
+            this.groupBox1.Controls.Add(this.panel5);
+            this.groupBox1.Controls.Add(this.panel4);
+            this.groupBox1.Controls.Add(this.panel6);
+            this.groupBox1.Location = new System.Drawing.Point(9, 672);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(794, 124);
+            this.groupBox1.TabIndex = 23;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Change Fields";
+            // 
+            // lnkChangeFields
+            // 
+            this.lnkChangeFields.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lnkChangeFields.AutoSize = true;
+            this.lnkChangeFields.Location = new System.Drawing.Point(116, 0);
+            this.lnkChangeFields.Name = "lnkChangeFields";
+            this.lnkChangeFields.Size = new System.Drawing.Size(16, 17);
+            this.lnkChangeFields.TabIndex = 9;
+            this.lnkChangeFields.TabStop = true;
+            this.lnkChangeFields.Text = "?";
+            this.lnkChangeFields.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkChangeFields_LinkClicked);
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BackgroundImage = global::Player.Properties.Resources.play;
+            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.pictureBox1.Location = new System.Drawing.Point(865, 684);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(151, 112);
+            this.pictureBox1.TabIndex = 24;
+            this.pictureBox1.TabStop = false;
+            // 
             // PlayerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1344, 768);
-            this.Controls.Add(this.panel4);
-            this.Controls.Add(this.panel3);
+            this.ClientSize = new System.Drawing.Size(1344, 808);
+            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.toolStrip2);
             this.Controls.Add(this.grpPackets);
@@ -590,6 +767,13 @@ namespace Player
             this.panel3.PerformLayout();
             this.panel4.ResumeLayout(false);
             this.panel4.PerformLayout();
+            this.panel5.ResumeLayout(false);
+            this.panel5.PerformLayout();
+            this.panel6.ResumeLayout(false);
+            this.panel6.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -641,6 +825,21 @@ namespace Player
         private System.Windows.Forms.CheckBox chkDstInterfaceMac;
         private System.Windows.Forms.TextBox txtDstMac;
         private System.Windows.Forms.CheckBox chkDstMac;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel6;
+        private System.Windows.Forms.ToolStripTextBox txtNumTimes;
+        private System.Windows.Forms.ToolStripLabel lnkNumTimes;
+        private System.Windows.Forms.Panel panel5;
+        private System.Windows.Forms.CheckBox chkDstInterfaceIp;
+        private System.Windows.Forms.TextBox txtDstIp;
+        private System.Windows.Forms.CheckBox chkDstIp;
+        private System.Windows.Forms.Panel panel6;
+        private System.Windows.Forms.CheckBox chkSrcInterfaceIp;
+        private System.Windows.Forms.TextBox txtSrcIp;
+        private System.Windows.Forms.CheckBox chkSrcIp;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.LinkLabel lnkChangeFields;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.CheckBox chkRandom;
     }
 }
 
