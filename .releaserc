@@ -10,5 +10,5 @@
   "branches": "add-ci",
   "tagFormat": "v${version}",
   "ci": true,
-  "dryRun": true
+  "dryRun": false
 }
