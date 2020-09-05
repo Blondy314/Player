@@ -4,11 +4,11 @@
   ['@semantic-release/github', {
     "successComment": false,
     "assets": [
-        {"path": "Player\\bin\\Release\\**", "label": "Release"}
+        {"path": "Player.zip", "label": "Release"}
     ]
   }]],
   "branches": "add-ci",
   "tagFormat": "v${version}",
   "ci": true,
-  "dry": true
+  "dryRun": true
 }
