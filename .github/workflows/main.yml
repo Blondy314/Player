@@ -34,3 +34,7 @@ jobs:
       with:
         name: published_release
         path: Player\bin\Release\
+    - name: Semantic Release
+      uses: cycjimmy/semantic-release-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
