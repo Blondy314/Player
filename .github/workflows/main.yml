@@ -29,11 +29,11 @@ jobs:
     - name: Build and Publish Web App
       run: msbuild Player.sln /p:Configuration=Release
  
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: published_release
-        path: Player\bin\Release\
+    # - name: Upload Artifact
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: published_release
+    #     path: Player\bin\Release\
     - name: Semantic Release
       uses: cycjimmy/semantic-release-action@v2
       env:

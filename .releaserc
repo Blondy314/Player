@@ -4,7 +4,7 @@
   ['@semantic-release/github', {
     "successComment": false,
     "assets": [
-        {"path": "Player\bin\Release\*", "label": "Release"}
+        {"path": "Player\\bin\\Release\\*", "label": "Release"}
     ]
   }]],
   "branches": "add-ci",
