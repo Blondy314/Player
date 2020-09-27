@@ -4,7 +4,7 @@
   ['@semantic-release/github', {
     "successComment": false,
     "assets": [
-        {"path": "Player.zip", "label": "Release"}
+        {"path": "Player.zip", "label": "Player.zip"}
     ]
   }]],
   "branches": "add-ci",
