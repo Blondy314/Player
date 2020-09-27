@@ -7,6 +7,7 @@ name: CI
 #     branches: [ master ]
 #   pull_request:
 #     branches: [ master ]
+# Player\bin\Release
 
 on: [push]
 
@@ -17,23 +18,26 @@ jobs:
     - uses: actions/checkout@v2
       name: Checkout Code
      
-    - name: Setup MSBuild Path
-      uses: warrenbuckley/Setup-MSBuild@v1
+    # - name: Setup MSBuild Path
+    #   uses: warrenbuckley/Setup-MSBuild@v1
        
-    - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1.0.2
+    # - name: Setup NuGet
+    #   uses: NuGet/setup-nuget@v1.0.2
      
-    - name: Restore NuGet Packages
-      run: nuget restore Player.sln
+    # - name: Restore NuGet Packages
+    #   run: nuget restore Player.sln
  
-    - name: Build
-      run: msbuild Player.sln /p:Configuration=Release 
+    # - name: Build
+    #   run: msbuild Player.sln /p:Configuration=Release 
 
-    - uses: montudor/action-zip@v0.1.0
-      with:
-        args: zip -qq -r Player.zip Player\bin\Release
+    - name: Zip Release
+        shell: pwsh
+        run: |
+          New-Item in.txt
+          Compress-Archive in.txt out.zip
 
-    - name: Semantic Release
-      uses: cycjimmy/semantic-release-action@v2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    # - name: Semantic Release
+    #   uses: cycjimmy/semantic-release-action@v2
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
