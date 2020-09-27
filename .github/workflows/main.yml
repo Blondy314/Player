@@ -31,10 +31,10 @@ jobs:
     #   run: msbuild Player.sln /p:Configuration=Release 
 
     - name: Zip Release
-        shell: pwsh
-        run: |
-          New-Item in.txt
-          Compress-Archive in.txt out.zip
+      shell: pwsh
+      run: |
+        New-Item in.txt
+        Compress-Archive in.txt out.zip
 
 
     # - name: Semantic Release
