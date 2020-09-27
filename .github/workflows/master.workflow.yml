@@ -1,15 +1,10 @@
-name: CI
+name: Master Workflow
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
-# on:
-#   push:
-#     branches: [ master ]
-#   pull_request:
-#     branches: [ master ]
-# 
-
-on: [push]
+on:
+  pull_request:
+    types: closed
+    branches:
+      - master
 
 jobs:
   build:
@@ -39,3 +34,9 @@ jobs:
       uses: cycjimmy/semantic-release-action@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    # - name: Upload Artifact
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: Player
+    #     path: Player\bin\Release\
