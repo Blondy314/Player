@@ -1,0 +1,31 @@
+name: Branch Workflow
+
+on:
+  push:
+    branches-ignore:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout Code
+     
+    - name: Setup MSBuild Path
+      uses: warrenbuckley/Setup-MSBuild@v1
+       
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.0.2
+     
+    - name: Restore NuGet Packages
+      run: nuget restore Player.sln
+ 
+    - name: Build
+      run: msbuild Player.sln /p:Configuration=Release 
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: Player
+        path: Player\bin\Release\

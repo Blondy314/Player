@@ -1,0 +1,42 @@
+name: Master Workflow
+
+on:
+  pull_request:
+    types: closed
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout Code
+     
+    - name: Setup MSBuild Path
+      uses: warrenbuckley/Setup-MSBuild@v1
+       
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.0.2
+     
+    - name: Restore NuGet Packages
+      run: nuget restore Player.sln
+ 
+    - name: Build
+      run: msbuild Player.sln /p:Configuration=Release 
+
+    - name: Zip Release
+      shell: pwsh
+      run: |
+        Compress-Archive Player\bin\Release Player.zip
+
+    - name: Semantic Release
+      uses: cycjimmy/semantic-release-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    # - name: Upload Artifact
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: Player
+    #     path: Player\bin\Release\
