@@ -26,13 +26,13 @@ jobs:
     - name: Restore NuGet Packages
       run: nuget restore Player.sln
  
-    - name: Build and Publish Web App
+    - name: Build
       run: msbuild Player.sln /p:Configuration=Release 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v2
+
+    - uses: montudor/action-zip@v0.1.0
       with:
-        name: Player
-        path: Player\bin\Release\
+        args: zip -qq -r Player.zip Player\bin\Release
+
     - name: Semantic Release
       uses: cycjimmy/semantic-release-action@v2
       env:
