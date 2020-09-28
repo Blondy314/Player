@@ -29,7 +29,7 @@ jobs:
       run: msbuild Player.sln /p:Configuration=Release
 
     - name: Upload Artifact
-      if: github.ref != 'master'
+      if: github.ref != 'refs/heads/master'
       uses: actions/upload-artifact@v2
       with:
         name: Player
@@ -37,13 +37,13 @@ jobs:
 
     # Release
     - name: Zip Release
-      if: github.ref == 'master'
+      if: github.ref == 'refs/heads/master'
       shell: pwsh
       run: |
         Compress-Archive Player\bin\Release Player.zip
 
     - name: Semantic Release
-      if: github.ref == 'master'
+      if: github.ref == 'refs/heads/master'
       uses: cycjimmy/semantic-release-action@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
