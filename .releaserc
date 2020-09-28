@@ -7,7 +7,7 @@
         {"path": "Player.zip", "label": "Player.zip"}
     ]
   }]],
-  "branches": "add-ci",
+  "branches": "master",
   "tagFormat": "v${version}",
   "ci": true,
   "dryRun": false
