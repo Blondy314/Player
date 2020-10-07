@@ -1,0 +1,14 @@
+{
+  "plugins": ['@semantic-release/commit-analyzer', 
+  '@semantic-release/release-notes-generator', 
+  ['@semantic-release/github', {
+    "successComment": false,
+    "assets": [
+        {"path": "Player.zip", "label": "Player.zip"}
+    ]
+  }]],
+  "branches": "master",
+  "tagFormat": "v${version}",
+  "ci": true,
+  "dryRun": false
+}
