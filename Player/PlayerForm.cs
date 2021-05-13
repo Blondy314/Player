@@ -22,6 +22,8 @@ namespace Player
         private PacketInfo[] _packets;
         private DeviceInfo[] _devices;
 
+        public static uint DEFAULT_MTU_SIZE = 1500;  // Typical MTU in Windows.
+
         public PlayerForm()
         {
             InitializeComponent();
@@ -599,6 +601,7 @@ namespace Player
             string srcIp = null,
             string dstIp = null)
         {
+            int skippedPackets = 0;
             try
             {
                 using (var communicator =
@@ -616,6 +619,12 @@ namespace Player
                         foreach (var p in packets)
                         {
                             var packet = p.Packet;
+
+                            if (packet.Length > DEFAULT_MTU_SIZE)
+                            {
+                                ++skippedPackets;
+                                continue;
+                            }
 
                             if (chkIpOption.Checked || srcMac != null || dstMac != null || srcIp != null ||  dstIp != null)
                             {
@@ -679,7 +688,11 @@ namespace Player
                             }
                         }
 
-                        Log($"Sent {packets.Count} packets on {device.Description} ({device.Address})");
+                        Log($"Sent {packets.Count - skippedPackets} packets on {device.Description} ({device.Address})");
+                        if (skippedPackets > 0)
+                        {
+                            Log($"Skipped {skippedPackets} packets with size larger than MTU: {DEFAULT_MTU_SIZE}.");
+                        }
                     }
                 }
             }
