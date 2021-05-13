@@ -689,7 +689,10 @@ namespace Player
                         }
 
                         Log($"Sent {packets.Count - skippedPackets} packets on {device.Description} ({device.Address})");
-                        Log($"Skipped {skippedPackets} packets with size larger than MTU: {DEFAULT_MTU_SIZE}.");
+                        if (skippedPackets > 0)
+                        {
+                            Log($"Skipped {skippedPackets} packets with size larger than MTU: {DEFAULT_MTU_SIZE}.");
+                        }
                     }
                 }
             }
