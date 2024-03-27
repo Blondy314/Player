@@ -14,6 +14,6 @@ Uses external projects
 
 In order to run the APP you need to make sure you have installed:
   1. Winpcap - http://www.winpcap.org
-  2. Microsoft Visual C++ 2013 Redistributable Package - https://www.microsoft.com/en-us/download/details.aspx?id=5555
+  2. Microsoft Visual C++ 2013 Redistributable Package - https://www.microsoft.com/en-us/download/details.aspx?id=40784&
 
 (See https://github.com/PcapDotNet/Pcap.Net/wiki/Using-Pcap.Net-in-your-programs)
